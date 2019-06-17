@@ -2,6 +2,7 @@ package com.vahundos.spring.hotel.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 @Table(name = "bookings")
 @Getter
 @Setter
+@ToString
 public class Booking {
 
     @Id
