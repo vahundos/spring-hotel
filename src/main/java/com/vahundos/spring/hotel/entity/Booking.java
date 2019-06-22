@@ -1,22 +1,23 @@
 package com.vahundos.spring.hotel.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.vahundos.spring.hotel.view.Views;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "bookings")
-@Getter
-@Setter
-@ToString
 public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @JsonView(Views.Id.class)
+    private Long id;
 
     private String personName;
 

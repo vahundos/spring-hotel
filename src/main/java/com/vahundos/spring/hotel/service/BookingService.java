@@ -10,9 +10,9 @@ public interface BookingService {
 
     List<Booking> getAll();
 
-    Booking get(int id);
+    Booking getById(long id);
 
-    Booking update(Booking booking, int id);
+    Booking update(Booking booking, long id);
 
-    void remove(int id);
+    void remove(long id);
 }
