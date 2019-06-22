@@ -21,9 +21,8 @@ public class Booking {
 
     private String personName;
 
-    private Integer adultsCount;
-
-    private Integer childrenCount;
+    @Embedded
+    private NumberOfGuests numberOfGuests;
 
     private LocalDate checkInDate;
 
