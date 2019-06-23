@@ -3,13 +3,16 @@ package com.vahundos.spring.hotel.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vahundos.spring.hotel.entity.Booking;
 import com.vahundos.spring.hotel.service.BookingService;
-import com.vahundos.spring.hotel.view.Views;
+import com.vahundos.spring.hotel.util.Views;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RestController
@@ -17,35 +20,38 @@ import java.util.List;
 @Slf4j
 public class BookingController {
 
+    private static final String ID_BOOKING_PATH = "/{idBooking}";
+
     private final BookingService bookingService;
 
-    @PutMapping(consumes = "application/json", produces = "application/json")
+    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @JsonView(Views.Id.class)
-    public Booking create(@RequestBody Booking booking) {
+    public Booking create(@Valid @RequestBody Booking booking) {
         log.debug("create booking - {}", booking);
         return bookingService.create(booking);
     }
 
-    @GetMapping(produces = "application/json")
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Booking> getAll() {
         log.debug("getAll bookings");
         return bookingService.getAll();
     }
 
-    @GetMapping(path = "/{idBooking}", produces = "application/json")
-    public Booking getById(@PathVariable("idBooking") long bookingId) {
-        log.debug("getById booking by id - {}", bookingId);
-        return bookingService.getById(bookingId);
+    @GetMapping(path = ID_BOOKING_PATH, produces = APPLICATION_JSON_VALUE)
+    public Booking getById(@PathVariable("idBooking") long id) {
+        log.debug("getById booking by id - {}", id);
+        return bookingService.getById(id);
     }
 
-    @DeleteMapping(path = "/{idBooking}")
-    public void cancelBooking(@PathVariable("idBooking") long bookingId) {
-        log.debug("cancelBooking by id - {}", bookingId);
-        bookingService.remove(bookingId);
+    @DeleteMapping(path = ID_BOOKING_PATH)
+    public void cancelBooking(@PathVariable("idBooking") long id) {
+        log.debug("cancelBooking by id - {}", id);
+        bookingService.remove(id);
     }
 
-    @PostMapping(consumes = "application/json", produces = "application/json")
-    public Booking updateBooking(@RequestBody Booking booking) {
-        return null;
+    @PostMapping(path = ID_BOOKING_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public Booking partialBookingUpdate(@PathVariable("idBooking") long id, @RequestBody Booking booking) {
+        log.debug("partialBookingUpdate with id - {} and body - {}", id, booking);
+        return bookingService.partialUpdate(id, booking);
     }
 }

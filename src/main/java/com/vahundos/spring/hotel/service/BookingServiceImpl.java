@@ -3,7 +3,9 @@ package com.vahundos.spring.hotel.service;
 import com.vahundos.spring.hotel.entity.Booking;
 import com.vahundos.spring.hotel.exception.NotFoundException;
 import com.vahundos.spring.hotel.repository.BookingRepository;
+import com.vahundos.spring.hotel.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,12 +38,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking update(Booking booking, long id) {
-        if (!bookingRepository.existsById(id)) {
-            throw new NotFoundException(String.format("Can't find booking with id=%d for UPDATE", id));
-        }
-        booking.setId(id);
-        return bookingRepository.save(booking);
+    public Booking partialUpdate(long id, Booking booking) {
+        Booking entity = this.getById(id);
+        BeanUtils.copyProperties(booking, entity, CommonUtils.getNullPropertyNames(booking));
+
+        return bookingRepository.save(entity);
     }
 
     @Override

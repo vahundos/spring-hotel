@@ -1,4 +1,4 @@
-package com.vahundos.spring.hotel.view;
+package com.vahundos.spring.hotel.util;
 
 public final class Views {
 
