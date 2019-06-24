@@ -17,7 +17,7 @@
     <properties>
         <java.version>1.8</java.version>
 
-        <junit.version>5.4.0</junit.version>
+        <junit.version>5.4.2</junit.version>
         <guava.version>28.0-jre</guava.version>
     </properties>
 
@@ -60,7 +60,7 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -101,23 +101,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-<!--                <configuration>-->
-<!--                    <includes>-->
-<!--                        <include>**/*IT.java</include>-->
-<!--                    </includes>-->
-<!--                </configuration>-->
-                <dependencies>
-                    <dependency>
-                        <groupId>org.junit.platform</groupId>
-                        <artifactId>junit-platform-surefire-provider</artifactId>
-                        <version>1.0.3</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.junit.jupiter</groupId>
-                        <artifactId>junit-jupiter-engine</artifactId>
-                        <version>5.0.3</version>
-                    </dependency>
-                </dependencies>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                        <include>**/*UTest.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -149,7 +142,6 @@
                 <reportSets>
                     <reportSet>
                         <reports>
-                            <!-- select non-aggregate reports -->
                             <report>report</report>
                         </reports>
                     </reportSet>
