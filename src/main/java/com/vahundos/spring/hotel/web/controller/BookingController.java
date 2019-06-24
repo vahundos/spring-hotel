@@ -5,6 +5,7 @@ import com.vahundos.spring.hotel.entity.Booking;
 import com.vahundos.spring.hotel.exception.NotFoundException;
 import com.vahundos.spring.hotel.service.BookingService;
 import com.vahundos.spring.hotel.util.Views;
+import com.vahundos.spring.hotel.web.CommonHttpException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,18 +47,14 @@ public class BookingController {
         try {
             return bookingService.getById(id);
         } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.OK);
+            throw new CommonHttpException(HttpStatus.OK, "{}");
         }
     }
 
     @DeleteMapping(path = ID_BOOKING_PATH)
     public void cancelBooking(@PathVariable("idBooking") long id) {
         log.debug("cancelBooking by id - {}", id);
-        try {
-            bookingService.remove(id);
-        } catch (NotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        bookingService.remove(id);
     }
 
     @PostMapping(path = ID_BOOKING_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)

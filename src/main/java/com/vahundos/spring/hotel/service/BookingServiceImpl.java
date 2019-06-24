@@ -33,7 +33,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking getById(long id) {
         return bookingRepository.findById(id).orElseThrow(
-                () -> new NotFoundException(String.format("Can't find booking with id=%d", id))
+                () -> new NotFoundException(id)
         );
     }
 
@@ -48,7 +48,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void remove(long id) {
         if (!bookingRepository.existsById(id)) {
-            throw new NotFoundException(String.format("Can't find booking with id=%d for DELETE", id));
+            throw new NotFoundException(id);
         }
         bookingRepository.deleteById(id);
     }

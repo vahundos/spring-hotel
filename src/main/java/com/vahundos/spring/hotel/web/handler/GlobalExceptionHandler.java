@@ -1,6 +1,7 @@
 package com.vahundos.spring.hotel.web.handler;
 
 import com.vahundos.spring.hotel.exception.NotFoundException;
+import com.vahundos.spring.hotel.web.CommonHttpException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.server.ResponseStatusException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,13 +19,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({ResponseStatusException.class})
-    public final ResponseEntity<?> handleResponseStatusException(ResponseStatusException exception) {
-        if (exception.getStatus() == HttpStatus.OK) {
-            return new ResponseEntity<>("{}", HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("", exception.getStatus());
+    @ExceptionHandler({CommonHttpException.class})
+    public final ResponseEntity<?> handleResponseStatusException(CommonHttpException exception) {
+        return new ResponseEntity<>(exception.getBody(), exception.getHttpStatus());
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class,
