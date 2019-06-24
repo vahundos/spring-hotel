@@ -134,6 +134,13 @@ public class BookingControllerIT {
         validatableResponseForCreation("{}", BAD_REQUEST, "");
     }
 
+    @Test
+    public void testCreateBooking_WhenBodyContainsId_ShouldReturnBadRequestResponse() throws JSONException {
+        String requestBody = getFixtureContent("invalid-booking-creation-request.json");
+
+        validatableResponseForCreation(requestBody, BAD_REQUEST, "");
+    }
+
     private void validatableResponseForGettingById(Object bookingId, int statusCode, String body) {
         ValidatableResponse validatableResponse = validatableResponseForGettingById(bookingId, statusCode);
 

@@ -1,5 +1,6 @@
 package com.vahundos.spring.hotel.web.handler;
 
+import com.vahundos.spring.hotel.exception.InvalidEntityException;
 import com.vahundos.spring.hotel.exception.NotFoundException;
 import com.vahundos.spring.hotel.web.CommonHttpException;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(exception.getBody(), exception.getHttpStatus());
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class,
-                       HttpMediaTypeException.class})
+    @ExceptionHandler({InvalidEntityException.class, MethodArgumentNotValidException.class, MethodArgumentTypeMismatchException.class,
+                       HttpMessageNotReadableException.class, HttpMediaTypeException.class})
     public final ResponseEntity<?> handleBadRequestExceptions() {
         return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
     }

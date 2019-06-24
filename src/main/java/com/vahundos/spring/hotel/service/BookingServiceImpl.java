@@ -1,6 +1,7 @@
 package com.vahundos.spring.hotel.service;
 
 import com.vahundos.spring.hotel.entity.Booking;
+import com.vahundos.spring.hotel.exception.InvalidEntityException;
 import com.vahundos.spring.hotel.exception.NotFoundException;
 import com.vahundos.spring.hotel.repository.BookingRepository;
 import com.vahundos.spring.hotel.util.CommonUtils;
@@ -20,7 +21,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking create(Booking booking) {
         if (booking.getId() != null) {
-            throw new IllegalArgumentException(booking + " - id should be null for creation");
+            throw new InvalidEntityException(booking + " - id should be null for creation");
         }
         return bookingRepository.save(booking);
     }
