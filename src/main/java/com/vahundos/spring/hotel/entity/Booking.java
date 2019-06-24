@@ -2,6 +2,8 @@ package com.vahundos.spring.hotel.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vahundos.spring.hotel.util.Views;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +12,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
+@Builder
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "bookings")

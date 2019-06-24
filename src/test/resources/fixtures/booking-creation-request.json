@@ -1,0 +1,10 @@
+{
+  "personName": "Person",
+  "numberOfGuests": {
+    "adults": 1,
+    "children": 1
+  },
+  "checkInDate": "2019-06-20",
+  "checkOutDate": "2019-06-30",
+  "roomType": "STANDART"
+}
