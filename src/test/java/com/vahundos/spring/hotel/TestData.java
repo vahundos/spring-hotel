@@ -50,7 +50,7 @@ public class TestData {
         add(BOOKING3);
     }});
 
-    public static Booking getValidBooking() {
+    public static Booking getValidBookingForCreation() {
         return Booking.builder()
                 .checkInDate(LocalDate.now())
                 .checkOutDate(LocalDate.now())

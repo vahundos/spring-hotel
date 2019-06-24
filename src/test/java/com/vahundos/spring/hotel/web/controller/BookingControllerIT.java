@@ -1,5 +1,8 @@
 package com.vahundos.spring.hotel.web.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vahundos.spring.hotel.TestData;
 import com.vahundos.spring.hotel.entity.Booking;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -8,6 +11,7 @@ import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -38,6 +42,9 @@ public class BookingControllerIT {
 
     @LocalServerPort
     private int port;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -116,11 +123,10 @@ public class BookingControllerIT {
 
     @Test
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
-    public void testCreateBooking_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException {
-        String requestBody = getFixtureContent("booking-creation-request.json");
+    public void testCreateBooking_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException, JsonProcessingException {
         String responseBody = getFixtureContent("booking-creation-response.json", BOOKING3.getId() + 1);
 
-        validatableResponseForCreation(requestBody, OK, responseBody);
+        validatableResponseForCreation(getObjAsJson(TestData.getValidBookingForCreation()), OK, responseBody);
     }
 
     @Test
@@ -135,6 +141,62 @@ public class BookingControllerIT {
 
     @Test
     public void testCreateBooking_WhenBodyContainsId_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.setId(10L);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenAdultsNull_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.getNumberOfGuests().setAdults(null);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenChildrenNull_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.getNumberOfGuests().setChildren(null);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenNumberOfGuestsNull_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.setNumberOfGuests(null);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenCheckInDateNull_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.setCheckInDate(null);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenCheckOutDateNull_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.setCheckOutDate(null);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenRoomTypeNull_ShouldReturnBadRequestResponse() throws JSONException {
+        Booking requestBody = getValidBookingForCreation();
+        requestBody.setRoomType(null);
+
+        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+    }
+
+    @Test
+    public void testCreateBooking_WhenDateFormatInvalid_ShouldReturnBadRequestResponse() throws JSONException {
         String requestBody = getFixtureContent("invalid-booking-creation-request.json");
 
         validatableResponseForCreation(requestBody, BAD_REQUEST, "");
@@ -183,6 +245,14 @@ public class BookingControllerIT {
 
         validatableResponseForPartialUpdate(Long.MAX_VALUE, requestBody, NOT_FOUND)
                 .body(is(equalTo("")));
+    }
+
+    private String getObjAsJson(Booking booking) {
+        try {
+            return objectMapper.writeValueAsString(booking);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ValidatableResponse validatableResponseForGettingById(Object bookingId, int statusCode) {

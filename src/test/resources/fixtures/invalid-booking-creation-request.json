@@ -1,11 +1,10 @@
 {
-  "id": 1,
   "personName": "Person",
   "numberOfGuests": {
     "adults": 1,
     "children": 1
   },
-  "checkInDate": "2019-06-20",
+  "checkInDate": "asdfxcv",
   "checkOutDate": "2019-06-30",
   "roomType": "STANDART"
 }
