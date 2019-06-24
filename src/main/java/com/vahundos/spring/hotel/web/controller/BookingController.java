@@ -1,13 +1,16 @@
-package com.vahundos.spring.hotel.controller;
+package com.vahundos.spring.hotel.web.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.vahundos.spring.hotel.entity.Booking;
+import com.vahundos.spring.hotel.exception.NotFoundException;
 import com.vahundos.spring.hotel.service.BookingService;
 import com.vahundos.spring.hotel.util.Views;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -40,13 +43,21 @@ public class BookingController {
     @GetMapping(path = ID_BOOKING_PATH, produces = APPLICATION_JSON_VALUE)
     public Booking getById(@PathVariable("idBooking") long id) {
         log.debug("getById booking by id - {}", id);
-        return bookingService.getById(id);
+        try {
+            return bookingService.getById(id);
+        } catch (NotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.OK);
+        }
     }
 
     @DeleteMapping(path = ID_BOOKING_PATH)
     public void cancelBooking(@PathVariable("idBooking") long id) {
         log.debug("cancelBooking by id - {}", id);
-        bookingService.remove(id);
+        try {
+            bookingService.remove(id);
+        } catch (NotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(path = ID_BOOKING_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)

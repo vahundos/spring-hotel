@@ -1,4 +1,4 @@
-package com.vahundos.spring.hotel.controller;
+package com.vahundos.spring.hotel.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vahundos.spring.hotel.entity.Booking;
@@ -34,13 +34,11 @@ public class BookingControllerIT {
     private static final String BOOKING_PATH_PARAM_URI = String.format("/{%s}", BOOKING_ID_PARAM);
 
     private static final String INVALID_BOOKING_ID = "qwe_=";
-    public static final String BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME = "booking-partial-update-request.json";
+
+    private static final String BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME = "booking-partial-update-request.json";
 
     @LocalServerPort
     private int port;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void setUp() {
@@ -191,7 +189,6 @@ public class BookingControllerIT {
 
                 .then()
                 .log().all()
-                .contentType(ContentType.JSON)
                 .statusCode(statusCode);
     }
 
