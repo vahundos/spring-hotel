@@ -1,6 +1,5 @@
 package com.vahundos.spring.hotel.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vahundos.spring.hotel.entity.Booking;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -9,7 +8,6 @@ import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -17,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 
+import static com.vahundos.spring.hotel.TestConstants.BOOKING_BASE_URL;
 import static com.vahundos.spring.hotel.TestData.*;
 import static com.vahundos.spring.hotel.TestUtils.getFixtureContent;
 import static io.restassured.RestAssured.given;
@@ -43,7 +42,7 @@ public class BookingControllerIT {
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
-        RestAssured.basePath = "/booking";
+        RestAssured.basePath = BOOKING_BASE_URL;
     }
 
     // GET BY ID
