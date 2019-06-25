@@ -48,9 +48,7 @@ class BookingServiceImplUTest {
 
     @Test
     public void testCreate_ShouldFail_WhenIdNotNull() {
-        Assertions.assertThrows(InvalidEntityException.class, () -> {
-            testObj.create(BOOKING1);
-        });
+        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.create(BOOKING1));
     }
 
     @Test
@@ -84,12 +82,22 @@ class BookingServiceImplUTest {
 
         Booking updatedEntity = new Booking();
         BeanUtils.copyProperties(BOOKING1, updatedEntity);
-        updatedEntity.setPersonName("PersonName");
+        updatedEntity.setId(null);
+        String personName = "PersonName";
+        updatedEntity.setPersonName(personName);
 
-        when(bookingRepository.save(updatedEntity)).thenReturn(updatedEntity);
+        Booking savedEntity = new Booking();
+        BeanUtils.copyProperties(BOOKING1, savedEntity);
+        savedEntity.setPersonName(personName);
+        when(bookingRepository.save(any())).thenReturn(savedEntity);
 
-        Booking actual = testObj.partialUpdate(updatedEntity.getId(), updatedEntity);
-        assertThat(actual).isEqualTo(updatedEntity);
+        Booking actual = testObj.partialUpdate(entity.getId(), updatedEntity);
+        assertThat(actual).isEqualTo(savedEntity);
+    }
+
+    @Test
+    public void testPartialUpdate_ShouldFail_WhenIdNotNull() {
+        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.partialUpdate(BOOKING1.getId(), BOOKING1));
     }
 
     @Test

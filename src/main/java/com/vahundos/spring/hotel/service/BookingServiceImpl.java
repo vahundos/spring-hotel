@@ -1,16 +1,18 @@
 package com.vahundos.spring.hotel.service;
 
 import com.vahundos.spring.hotel.entity.Booking;
+import com.vahundos.spring.hotel.entity.NumberOfGuests;
 import com.vahundos.spring.hotel.exception.InvalidEntityException;
 import com.vahundos.spring.hotel.exception.NotFoundException;
 import com.vahundos.spring.hotel.repository.BookingRepository;
-import com.vahundos.spring.hotel.util.CommonUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.vahundos.spring.hotel.util.CommonUtils.getNullPropertyNames;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
@@ -40,8 +42,20 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking partialUpdate(long id, Booking booking) {
+        if (booking.getId() != null) {
+            throw new InvalidEntityException(booking + " - can't update ID");
+        }
+
         Booking entity = this.getById(id);
-        BeanUtils.copyProperties(booking, entity, CommonUtils.getNullPropertyNames(booking));
+        NumberOfGuests savedNumberOfGuests = entity.getNumberOfGuests();
+
+        BeanUtils.copyProperties(booking, entity, getNullPropertyNames(booking));
+        if (booking.getNumberOfGuests() != null) {
+            BeanUtils.copyProperties(entity.getNumberOfGuests(), savedNumberOfGuests,
+                                     getNullPropertyNames(booking.getNumberOfGuests()));
+        }
+
+        entity.setNumberOfGuests(savedNumberOfGuests);
 
         return bookingRepository.save(entity);
     }
