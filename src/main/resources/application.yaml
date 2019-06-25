@@ -5,6 +5,8 @@ spring:
     url: jdbc:hsqldb:file:db/hotel;hsqldb.lock_file=false
     username: sa
     password:
+  profiles:
+#    active: swagger-ui
 
   jpa:
     hibernate:
