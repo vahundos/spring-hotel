@@ -85,9 +85,9 @@ public class BookingController {
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)
     })
     @DeleteMapping(path = ID_BOOKING_PATH)
-    public void cancelBooking(@PathVariable("idBooking") long id) {
+    public void cancel(@PathVariable("idBooking") long id) {
         log.debug("cancelBooking by id - {}", id);
-        bookingService.remove(id);
+        bookingService.cancel(id);
     }
 
     @ApiOperation(value = "Partial update of booking")
@@ -98,8 +98,8 @@ public class BookingController {
             @ApiResponse(code = 500, message = INTERNAL_SERVER_ERROR)
     })
     @PostMapping(path = ID_BOOKING_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public Booking partialBookingUpdate(@PathVariable("idBooking") long id, @RequestBody Booking booking) {
+    public Booking update(@PathVariable("idBooking") long id, @RequestBody Booking booking) {
         log.debug("partialBookingUpdate with id - {} and body - {}", id, booking);
-        return bookingService.partialUpdate(id, booking);
+        return bookingService.update(id, booking);
     }
 }

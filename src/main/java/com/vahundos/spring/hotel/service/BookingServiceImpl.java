@@ -41,7 +41,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Booking partialUpdate(long id, Booking booking) {
+    public Booking update(long id, Booking booking) {
         if (booking.getId() != null) {
             throw new InvalidEntityException(booking + " - can't update ID");
         }
@@ -61,7 +61,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void remove(long id) {
+    public void cancel(long id) {
         if (!bookingRepository.existsById(id)) {
             throw new NotFoundException(id);
         }

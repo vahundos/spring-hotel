@@ -91,25 +91,25 @@ class BookingServiceImplUTest {
         savedEntity.setPersonName(personName);
         when(bookingRepository.save(any())).thenReturn(savedEntity);
 
-        Booking actual = testObj.partialUpdate(entity.getId(), updatedEntity);
+        Booking actual = testObj.update(entity.getId(), updatedEntity);
         assertThat(actual).isEqualTo(savedEntity);
     }
 
     @Test
     public void testPartialUpdate_ShouldFail_WhenIdNotNull() {
-        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.partialUpdate(BOOKING1.getId(), BOOKING1));
+        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.update(BOOKING1.getId(), BOOKING1));
     }
 
     @Test
     public void testRemove_ShouldPass() {
         when(bookingRepository.existsById(BOOKING1.getId())).thenReturn(true);
-        testObj.remove(BOOKING1.getId());
+        testObj.cancel(BOOKING1.getId());
     }
 
     @Test
     public void testRemove_ShouldFail_WhenEntityDoesntExist() {
         when(bookingRepository.existsById(Long.MAX_VALUE)).thenReturn(false);
-        Assertions.assertThrows(NotFoundException.class, () -> testObj.remove(Long.MAX_VALUE));
+        Assertions.assertThrows(NotFoundException.class, () -> testObj.cancel(Long.MAX_VALUE));
     }
 
 }
