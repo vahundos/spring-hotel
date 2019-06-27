@@ -57,7 +57,7 @@ public class BookingController {
     })
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<Booking> getAll() {
-        log.debug("getAll bookings");
+        log.debug("get all bookings");
         return bookingService.getAll();
     }
 
@@ -69,7 +69,7 @@ public class BookingController {
     })
     @GetMapping(path = ID_BOOKING_PATH, produces = APPLICATION_JSON_VALUE)
     public Booking getById(@PathVariable("idBooking") long id) {
-        log.debug("getById booking by id - {}", id);
+        log.debug("get booking by id - {}", id);
         try {
             return bookingService.getById(id);
         } catch (NotFoundException e) {
@@ -86,7 +86,7 @@ public class BookingController {
     })
     @DeleteMapping(path = ID_BOOKING_PATH)
     public void cancel(@PathVariable("idBooking") long id) {
-        log.debug("cancelBooking by id - {}", id);
+        log.debug("cancel booking by id - {}", id);
         bookingService.cancel(id);
     }
 
@@ -99,7 +99,7 @@ public class BookingController {
     })
     @PostMapping(path = ID_BOOKING_PATH, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public Booking update(@PathVariable("idBooking") long id, @RequestBody Booking booking) {
-        log.debug("partialBookingUpdate with id - {} and body - {}", id, booking);
+        log.debug("update booking with id - {} and body - {}", id, booking);
         return bookingService.update(id, booking);
     }
 }
