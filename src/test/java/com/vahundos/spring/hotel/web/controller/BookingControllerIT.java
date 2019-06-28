@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 
@@ -30,6 +30,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.*;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class BookingControllerIT {
 
     private static final String BOOKING_ID_PARAM = "idBooking";
@@ -104,7 +105,6 @@ public class BookingControllerIT {
     // CANCEL BOOKING
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testCancelBooking_WhenIdExists_ShouldReturnSuccessResponse() {
         validatableResponseForCanceling(BOOKING1.getId(), OK);
     }
@@ -122,7 +122,6 @@ public class BookingControllerIT {
     // CREATE BOOKING
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testCreateBooking_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException, JsonProcessingException {
         String responseBody = getFixtureContent("booking-creation-response.json", BOOKING3.getId() + 1);
 
@@ -213,7 +212,6 @@ public class BookingControllerIT {
     // PARTIAL UPDATE
 
     @Test
-    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     public void testPartialUpdate_WhenBodyValid_ShouldReturnSuccessResponse() {
         String expectedName = "Person";
         String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, expectedName);
