@@ -1,0 +1,212 @@
+swagger: '2.0'
+info:
+  description: Api Documentation
+  version: '1.0'
+  title: Spring Hotel Api Documentation
+host: 'localhost:8080'
+basePath: /
+schemes:
+  - http
+paths:
+  /booking:
+    get:
+      summary: List of all bookings
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved list
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BookingResponse'
+        '500':
+          description: Internal server error
+      deprecated: false
+    put:
+      summary: Create new booking
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: booking
+          description: booking
+          required: true
+          schema:
+            $ref: '#/definitions/CreateBookingRequest'
+      responses:
+        '200':
+          description: Booking created successfully
+          schema:
+            $ref: '#/definitions/Id'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      deprecated: false
+  '/booking/{idBooking}':
+    get:
+      summary: Get booking by id
+      produces:
+        - application/json
+      parameters:
+        - name: idBooking
+          in: path
+          description: idBooking
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Booking successfully retrieved
+          schema:
+            $ref: '#/definitions/BookingResponse'
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+      deprecated: false
+    post:
+      summary: Update booking
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: booking
+          description: booking
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateBookingRequest'
+        - name: idBooking
+          in: path
+          description: idBooking
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Booking successfully retrieved
+          schema:
+            $ref: '#/definitions/BookingResponse'
+        '400':
+          description: Bad request
+        '404':
+          description: Booking not found
+        '500':
+          description: Internal server error
+      deprecated: false
+    delete:
+      summary: Cancel booking by id
+      produces:
+        - '*/*'
+      parameters:
+        - name: idBooking
+          in: path
+          description: idBooking
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Booking successfully retrieved
+        '400':
+          description: Bad request
+        '404':
+          description: Booking not found
+        '500':
+          description: Internal server error
+      deprecated: false
+definitions:
+  Id:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+    title: Id
+  CreateBookingRequest:
+    type: object
+    required:
+      - checkInDate
+      - checkOutDate
+      - numberOfGuests
+      - personName
+      - roomType
+    properties:
+      checkInDate:
+        type: string
+        format: date
+      checkOutDate:
+        type: string
+        format: date
+      numberOfGuests:
+        $ref: '#/definitions/NumberOfGuestsCreateRequest'
+      personName:
+        type: string
+      roomType:
+        $ref: '#/definitions/RoomType'
+  UpdateBookingRequest:
+    type: object
+    properties:
+      checkInDate:
+        type: string
+        format: date
+      checkOutDate:
+        type: string
+        format: date
+      numberOfGuests:
+        $ref: '#/definitions/NumberOfGuestsCreateRequest'
+      personName:
+        type: string
+      roomType:
+        $ref: '#/definitions/RoomType'
+  BookingResponse:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      checkInDate:
+        type: string
+        format: date
+      checkOutDate:
+        type: string
+        format: date
+      numberOfGuests:
+        $ref: '#/definitions/NumberOfGuests'
+      personName:
+        type: string
+      roomType:
+        $ref: '#/definitions/RoomType'
+    title: Booking
+  NumberOfGuests:
+    type: object
+    properties:
+      adults:
+        type: integer
+        format: int32
+      children:
+        type: integer
+        format: int32
+    title: NumberOfGuests
+  NumberOfGuestsCreateRequest:
+    type: object
+    required:
+      - adults
+      - children
+    properties:
+      adults:
+        type: integer
+        format: int32
+      children:
+        type: integer
+        format: int32
+  RoomType:
+    type: string
+    enum:
+      - STANDART
+      - SUITE
