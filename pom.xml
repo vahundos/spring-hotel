@@ -22,6 +22,7 @@
         <guava.version>28.0-jre</guava.version>
 
         <junit.version>5.4.2</junit.version>
+        <pitest.version>1.4.9</pitest.version>
     </properties>
 
     <dependencies>
@@ -148,6 +149,31 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pitest.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.9</version>
+                    </dependency>
+                </dependencies>
+
+                <configuration>
+                    <targetClasses>
+                        <param>com.vahundos.spring.hotel.*</param>
+                    </targetClasses>
+                    <targetTests>
+                        <param>com.vahundos.spring.hotel.*</param>
+                    </targetTests>
+                    <failWhenNoMutations>false</failWhenNoMutations>
+                    <timeoutConstant>10000</timeoutConstant>
+                    <verbose>true</verbose>
+                </configuration>
             </plugin>
         </plugins>
     </build>

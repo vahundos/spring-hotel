@@ -29,6 +29,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import static org.springframework.http.HttpStatus.*;
 
+@SuppressWarnings("WeakerAccess")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class BookingControllerIT {
@@ -122,7 +123,7 @@ public class BookingControllerIT {
     // CREATE BOOKING
 
     @Test
-    public void testCreateBooking_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException, JsonProcessingException {
+    public void testCreateBooking_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException {
         String responseBody = getFixtureContent("booking-creation-response.json", BOOKING3.getId() + 1);
 
         validatableResponseForCreation(getObjAsJson(TestData.getValidBookingForCreation()), OK, responseBody);
