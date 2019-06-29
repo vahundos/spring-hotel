@@ -16,9 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SuppressWarnings("WeakerAccess")
 @ExtendWith(MockitoExtension.class)
-public class BookingControllerUTest {
+class BookingControllerUTest {
 
     private MockMvc mockMvc;
 
@@ -26,14 +25,14 @@ public class BookingControllerUTest {
     private BookingController bookingController;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.mockMvc = MockMvcBuilders.standaloneSetup(bookingController)
                                       .setControllerAdvice(new GlobalExceptionHandler())
                                       .build();
     }
 
     @Test
-    public void testHandlingException_WhenUnexpectedExceptionOccurs() throws Exception {
+    void testHandlingException_WhenUnexpectedExceptionOccurs() throws Exception {
         Mockito.when(bookingController.getAll()).thenThrow(new RuntimeException("Unexpected exeception"));
 
         mockMvc.perform(get(BOOKING_BASE_URL))

@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings("WeakerAccess")
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplUTest {
 
@@ -31,12 +30,12 @@ class BookingServiceImplUTest {
     private BookingServiceImpl testObj;
 
     @BeforeEach
-    public void beforeEach() {
+    void beforeEach() {
         this.testObj = new BookingServiceImpl(bookingRepository);
     }
 
     @Test
-    public void testCreate_ShouldPass() {
+    void testCreate_ShouldPass() {
         Booking bookingToCreate = new Booking();
         BeanUtils.copyProperties(BOOKING1, bookingToCreate, "id");
 
@@ -48,12 +47,12 @@ class BookingServiceImplUTest {
     }
 
     @Test
-    public void testCreate_ShouldFail_WhenIdNotNull() {
+    void testCreate_ShouldFail_WhenIdNotNull() {
         Assertions.assertThrows(InvalidEntityException.class, () -> testObj.create(BOOKING1));
     }
 
     @Test
-    public void testGetAll_ShouldPass() {
+    void testGetAll_ShouldPass() {
         when(bookingRepository.findAll()).thenReturn(ALL_BOOKINGS);
 
         List<Booking> actual = testObj.getAll();
@@ -61,7 +60,7 @@ class BookingServiceImplUTest {
     }
 
     @Test
-    public void testGetById_ShouldPass() {
+    void testGetById_ShouldPass() {
         when(bookingRepository.findById(BOOKING1.getId())).thenReturn(Optional.of(BOOKING1));
 
         Booking actual = testObj.getById(BOOKING1.getId());
@@ -69,13 +68,13 @@ class BookingServiceImplUTest {
     }
 
     @Test
-    public void testGetById_ShouldFail_WhenIdDoesntExist() {
+    void testGetById_ShouldFail_WhenIdDoesntExist() {
         when(bookingRepository.findById(any())).thenReturn(Optional.empty());
         Assertions.assertThrows(NotFoundException.class, () -> testObj.getById(Long.MAX_VALUE));
     }
 
     @Test
-    public void testPartialUpdate_ShouldSuccess() {
+    void testUpdate_ShouldSuccess() {
         Booking entity = new Booking();
         BeanUtils.copyProperties(BOOKING1, entity);
 
@@ -97,18 +96,18 @@ class BookingServiceImplUTest {
     }
 
     @Test
-    public void testPartialUpdate_ShouldFail_WhenIdNotNull() {
+    void testUpdate_ShouldFail_WhenIdNotNull() {
         Assertions.assertThrows(InvalidEntityException.class, () -> testObj.update(BOOKING1.getId(), BOOKING1));
     }
 
     @Test
-    public void testRemove_ShouldPass() {
+    void testRemove_ShouldPass() {
         when(bookingRepository.existsById(BOOKING1.getId())).thenReturn(true);
         testObj.cancel(BOOKING1.getId());
     }
 
     @Test
-    public void testRemove_ShouldFail_WhenEntityDoesntExist() {
+    void testRemove_ShouldFail_WhenEntityDoesntExist() {
         when(bookingRepository.existsById(Long.MAX_VALUE)).thenReturn(false);
         Assertions.assertThrows(NotFoundException.class, () -> testObj.cancel(Long.MAX_VALUE));
     }

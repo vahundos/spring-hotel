@@ -9,6 +9,7 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,8 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import static org.springframework.http.HttpStatus.*;
 
-@SuppressWarnings("WeakerAccess")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class BookingControllerIT {
+class BookingControllerIT {
 
     private static final String BOOKING_ID_PARAM = "idBooking";
 
@@ -49,274 +48,294 @@ public class BookingControllerIT {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         RestAssured.port = port;
         RestAssured.basePath = BOOKING_BASE_URL;
     }
 
-    // GET BY ID
 
-    @Test
-    public void testGetById_WhenIdExists_ShouldReturnSuccessResponse() {
-        Booking actual = validatableResponseForGettingById(BOOKING1.getId(), OK.value())
-                .extract().body().as(Booking.class);
+    @Nested
+    class GetByIdTest {
 
-        assertThat(actual).isEqualTo(BOOKING1);
-    }
+        @Test
+        void testGetById_WhenIdExists_ShouldReturnSuccessResponse() {
+            Booking actual = validatableResponseForGettingById(BOOKING1.getId(), OK.value())
+                    .extract().body().as(Booking.class);
 
-    @Test
-    public void testGetById_WhenIdNotExists_ShouldReturnSuccessResponse() {
-        validatableResponseForGettingById(Long.MAX_VALUE, OK.value(), "{}");
-    }
+            assertThat(actual).isEqualTo(BOOKING1);
+        }
 
-    @Test
-    public void testGetById_WhenIdIsInvalid_ShouldReturnBadRequestResponse() {
-        validatableResponseForGettingById(INVALID_BOOKING_ID, BAD_REQUEST.value(), "");
-    }
+        @Test
+        void testGetById_WhenIdNotExists_ShouldReturnSuccessResponse() {
+            validatableResponseForGettingById(Long.MAX_VALUE, OK.value(), "{}");
+        }
 
-    // GET ALL
+        @Test
+        void testGetById_WhenIdIsInvalid_ShouldReturnBadRequestResponse() {
+            validatableResponseForGettingById(INVALID_BOOKING_ID, BAD_REQUEST.value(), "");
+        }
 
-    @Test
-    public void testGetAll_ShouldReturnSuccessResponse() {
-        List<Booking> actual = given()
-                .get()
+        private void validatableResponseForGettingById(Object bookingId, int statusCode, String body) {
+            ValidatableResponse validatableResponse = validatableResponseForGettingById(bookingId, statusCode);
 
-                .then()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .statusCode(OK.value())
-                .extract().jsonPath().getList(".", Booking.class);
+            if (body != null) {
+                validatableResponse.body(is(equalTo(body)));
+            }
+        }
 
-        assertThat(actual).isEqualTo(ALL_BOOKINGS);
-    }
+        private ValidatableResponse validatableResponseForGettingById(Object bookingId, int statusCode) {
+            return given()
+                    .pathParam(BOOKING_ID_PARAM, bookingId)
+                    .log().all()
 
-    @Test
-    public void testGetAll_WhenAcceptNotSupported_ShouldReturnBadRequest() {
-        given()
-                .accept(ContentType.HTML)
-                .log().all()
-                .get()
+                    .when()
+                    .get(BOOKING_PATH_PARAM_URI)
 
-                .then()
-                .log().all()
-                .statusCode(BAD_REQUEST.value())
-                .body(is(equalTo("")));
-    }
-
-    // CANCEL BOOKING
-
-    @Test
-    public void testCancelBooking_WhenIdExists_ShouldReturnSuccessResponse() {
-        validatableResponseForCanceling(BOOKING1.getId(), OK);
-    }
-
-    @Test
-    public void testCancelBooking_WhenIdIsInvalid_ShouldReturnBadRequestResponse() {
-        validatableResponseForCanceling(INVALID_BOOKING_ID, BAD_REQUEST);
-    }
-
-    @Test
-    public void testCancelBooking_WhenIdNotExists_ShouldReturnNotFoundResponse() {
-        validatableResponseForCanceling(Long.MAX_VALUE, NOT_FOUND);
-    }
-
-    // CREATE BOOKING
-
-    @Test
-    public void testCreateBooking_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException {
-        String responseBody = getFixtureContent("booking-creation-response.json", BOOKING3.getId() + 1);
-
-        validatableResponseForCreation(getObjAsJson(TestData.getValidBookingForCreation()), OK, responseBody);
-    }
-
-    @Test
-    public void testCreateBooking_WhenBodyInvalid_ShouldReturnBadRequestResponse() throws JSONException {
-        validatableResponseForCreation("person: \"name\"}", BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenBodyIsEmptyJsonObject_ShouldReturnBadRequestResponse() throws JSONException {
-        validatableResponseForCreation("{}", BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenBodyContainsId_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.setId(10L);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenAdultsNull_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.getNumberOfGuests().setAdults(null);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenChildrenNull_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.getNumberOfGuests().setChildren(null);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenNumberOfGuestsNull_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.setNumberOfGuests(null);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenCheckInDateNull_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.setCheckInDate(null);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenCheckOutDateNull_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.setCheckOutDate(null);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenRoomTypeNull_ShouldReturnBadRequestResponse() throws JSONException {
-        Booking requestBody = getValidBookingForCreation();
-        requestBody.setRoomType(null);
-
-        validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
-    }
-
-    @Test
-    public void testCreateBooking_WhenDateFormatInvalid_ShouldReturnBadRequestResponse() throws JSONException {
-        String requestBody = getFixtureContent("invalid-booking-creation-request.json");
-
-        validatableResponseForCreation(requestBody, BAD_REQUEST, "");
-    }
-
-    private void validatableResponseForGettingById(Object bookingId, int statusCode, String body) {
-        ValidatableResponse validatableResponse = validatableResponseForGettingById(bookingId, statusCode);
-
-        if (body != null) {
-            validatableResponse.body(is(equalTo(body)));
+                    .then()
+                    .log().all()
+                    .statusCode(statusCode);
         }
     }
 
-    // PARTIAL UPDATE
+    @Nested
+    class GetAllTest {
 
-    @Test
-    public void testPartialUpdate_WhenBodyValid_ShouldReturnSuccessResponse() {
-        String expectedName = "Person";
-        String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, expectedName);
+        @Test
+        void testGetAll_ShouldReturnSuccessResponse() {
+            List<Booking> actual = given()
+                    .get()
 
-        Booking actual = validatableResponseForPartialUpdate(BOOKING1.getId(), requestBody, OK)
-                .extract().body().as(Booking.class);
+                    .then()
+                    .log().all()
+                    .contentType(ContentType.JSON)
+                    .statusCode(OK.value())
+                    .extract().jsonPath().getList(".", Booking.class);
 
-        assertThat(actual).isEqualToIgnoringGivenFields(BOOKING1, "personName");
-        assertThat(actual.getPersonName()).isEqualTo(expectedName);
-    }
+            assertThat(actual).isEqualTo(ALL_BOOKINGS);
+        }
 
-    @Test
-    public void testPartialUpdate_WhenIdInvalid_ShouldReturnBadRequestResponse() {
-        String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, "Person");
+        @Test
+        void testGetAll_WhenAcceptNotSupported_ShouldReturnBadRequest() {
+            given()
+                    .accept(ContentType.HTML)
+                    .log().all()
+                    .get()
 
-        validatableResponseForPartialUpdate(INVALID_BOOKING_ID, requestBody, BAD_REQUEST)
-                .body(is(equalTo("")));
-    }
-
-    @Test
-    public void testPartialUpdate_WhenBodyIsEmpty_ShouldReturnBadRequestResponse() {
-        validatableResponseForPartialUpdate(BOOKING1.getId(), "", BAD_REQUEST)
-                .body(is(equalTo("")));
-    }
-
-    @Test
-    public void testPartialUpdate_WhenIdNotExists_ShouldReturnNotFoundResponse() {
-        String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, "Person");
-
-        validatableResponseForPartialUpdate(Long.MAX_VALUE, requestBody, NOT_FOUND)
-                .body(is(equalTo("")));
-    }
-
-    private String getObjAsJson(Booking booking) {
-        try {
-            return objectMapper.writeValueAsString(booking);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+                    .then()
+                    .log().all()
+                    .statusCode(BAD_REQUEST.value())
+                    .body(is(equalTo("")));
         }
     }
 
-    private ValidatableResponse validatableResponseForGettingById(Object bookingId, int statusCode) {
-        return given()
-                .pathParam(BOOKING_ID_PARAM, bookingId)
-                .log().all()
+    @Nested
+    @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+    @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    // https://github.com/spring-projects/spring-framework/issues/19930
+    class CancelTest {
 
-                .when()
-                .get(BOOKING_PATH_PARAM_URI)
+        @Test
+        void testCancel_WhenIdExists_ShouldReturnSuccessResponse() {
+            validatableResponseForCanceling(BOOKING1.getId(), OK);
+        }
 
-                .then()
-                .log().all()
-                .statusCode(statusCode);
-    }
+        @Test
+        void testCancel_WhenIdIsInvalid_ShouldReturnBadRequestResponse() {
+            validatableResponseForCanceling(INVALID_BOOKING_ID, BAD_REQUEST);
+        }
 
-    private void validatableResponseForCanceling(Object bookingId, HttpStatus httpStatus) {
-        given()
-                .pathParam(BOOKING_ID_PARAM, bookingId)
-                .log().all()
+        @Test
+        void testCancel_WhenIdNotExists_ShouldReturnNotFoundResponse() {
+            validatableResponseForCanceling(Long.MAX_VALUE, NOT_FOUND);
+        }
 
-                .when()
-                .delete(BOOKING_PATH_PARAM_URI)
+        private void validatableResponseForCanceling(Object bookingId, HttpStatus httpStatus) {
+            given()
+                    .pathParam(BOOKING_ID_PARAM, bookingId)
+                    .log().all()
 
-                .then()
-                .log().all()
-                .statusCode(httpStatus.value())
-                .body(is(equalTo("")));
-    }
+                    .when()
+                    .delete(BOOKING_PATH_PARAM_URI)
 
-    private void validatableResponseForCreation(String requestBody, HttpStatus httpStatus, String responseBody) throws JSONException {
-        ValidatableResponse validatableResponse = given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(requestBody)
-                .log().all()
-
-                .put()
-
-                .then()
-                .log().all()
-                .statusCode(httpStatus.value());
-
-        if ("".equals(responseBody)) {
-            validatableResponse
-                    .body(is(equalTo(responseBody)));
-        } else {
-            String actualResponseBody = validatableResponse.extract().body().asString();
-            JSONAssert.assertEquals(responseBody, actualResponseBody, false);
+                    .then()
+                    .log().all()
+                    .statusCode(httpStatus.value())
+                    .body(is(equalTo("")));
         }
     }
 
-    private ValidatableResponse validatableResponseForPartialUpdate(Object bookingId, String requestBody, HttpStatus httpStatus) {
-        return given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .body(requestBody)
-                .pathParam(BOOKING_ID_PARAM, bookingId)
-                .log().all()
+    @Nested
+    @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+    @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    // https://github.com/spring-projects/spring-framework/issues/19930
+    class CreateTest {
 
-                .when()
-                .post(BOOKING_PATH_PARAM_URI)
+        @Test
+        void testCreate_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException {
+            String responseBody = getFixtureContent("booking-creation-response.json", BOOKING3.getId() + 1);
 
-                .then()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .statusCode(httpStatus.value());
+            validatableResponseForCreation(getObjAsJson(TestData.getValidBookingForCreation()), OK, responseBody);
+        }
+
+        @Test
+        void testCreate_WhenBodyInvalid_ShouldReturnBadRequestResponse() throws JSONException {
+            validatableResponseForCreation("person: \"name\"}", BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenBodyIsEmptyJsonObject_ShouldReturnBadRequestResponse() throws JSONException {
+            validatableResponseForCreation("{}", BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenBodyContainsId_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.setId(10L);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenAdultsNull_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.getNumberOfGuests().setAdults(null);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenChildrenNull_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.getNumberOfGuests().setChildren(null);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenNumberOfGuestsNull_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.setNumberOfGuests(null);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenCheckInDateNull_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.setCheckInDate(null);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenCheckOutDateNull_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.setCheckOutDate(null);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenRoomTypeNull_ShouldReturnBadRequestResponse() throws JSONException {
+            Booking requestBody = getValidBookingForCreation();
+            requestBody.setRoomType(null);
+
+            validatableResponseForCreation(getObjAsJson(requestBody), BAD_REQUEST, "");
+        }
+
+        @Test
+        void testCreate_WhenDateFormatInvalid_ShouldReturnBadRequestResponse() throws JSONException {
+            String requestBody = getFixtureContent("invalid-booking-creation-request.json");
+
+            validatableResponseForCreation(requestBody, BAD_REQUEST, "");
+        }
+
+        private String getObjAsJson(Booking booking) {
+            try {
+                return objectMapper.writeValueAsString(booking);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private void validatableResponseForCreation(String requestBody, HttpStatus httpStatus, String responseBody) throws JSONException {
+            ValidatableResponse validatableResponse = given()
+                    .accept(ContentType.JSON)
+                    .contentType(ContentType.JSON)
+                    .body(requestBody)
+                    .log().all()
+
+                    .put()
+
+                    .then()
+                    .log().all()
+                    .statusCode(httpStatus.value());
+
+            if ("".equals(responseBody)) {
+                validatableResponse
+                        .body(is(equalTo(responseBody)));
+            } else {
+                String actualResponseBody = validatableResponse.extract().body().asString();
+                JSONAssert.assertEquals(responseBody, actualResponseBody, false);
+            }
+        }
+    }
+
+    @Nested
+    @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+    @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    // https://github.com/spring-projects/spring-framework/issues/19930
+    class UpdateTest {
+
+        @Test
+        void testPartialUpdate_WhenBodyValid_ShouldReturnSuccessResponse() {
+            String expectedName = "Person";
+            String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, expectedName);
+
+            Booking actual = validatableResponseForPartialUpdate(BOOKING1.getId(), requestBody, OK)
+                    .extract().body().as(Booking.class);
+
+            assertThat(actual).isEqualToIgnoringGivenFields(BOOKING1, "personName");
+            assertThat(actual.getPersonName()).isEqualTo(expectedName);
+        }
+
+        @Test
+        void testPartialUpdate_WhenIdInvalid_ShouldReturnBadRequestResponse() {
+            String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, "Person");
+
+            validatableResponseForPartialUpdate(INVALID_BOOKING_ID, requestBody, BAD_REQUEST)
+                    .body(is(equalTo("")));
+        }
+
+        @Test
+        void testPartialUpdate_WhenBodyIsEmpty_ShouldReturnBadRequestResponse() {
+            validatableResponseForPartialUpdate(BOOKING1.getId(), "", BAD_REQUEST)
+                    .body(is(equalTo("")));
+        }
+
+        @Test
+        void testPartialUpdate_WhenIdNotExists_ShouldReturnNotFoundResponse() {
+            String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, "Person");
+
+            validatableResponseForPartialUpdate(Long.MAX_VALUE, requestBody, NOT_FOUND)
+                    .body(is(equalTo("")));
+        }
+
+        private ValidatableResponse validatableResponseForPartialUpdate(Object bookingId, String requestBody, HttpStatus httpStatus) {
+            return given()
+                    .accept(ContentType.JSON)
+                    .contentType(ContentType.JSON)
+                    .body(requestBody)
+                    .pathParam(BOOKING_ID_PARAM, bookingId)
+                    .log().all()
+
+                    .when()
+                    .post(BOOKING_PATH_PARAM_URI)
+
+                    .then()
+                    .log().all()
+                    .contentType(ContentType.JSON)
+                    .statusCode(httpStatus.value());
+        }
     }
 }
