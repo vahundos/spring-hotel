@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.vahundos.spring.hotel.TestData.ALL_BOOKINGS;
-import static com.vahundos.spring.hotel.TestData.BOOKING1;
+import static com.vahundos.spring.hotel.TestData.getBooking1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,18 +37,18 @@ class BookingServiceImplUTest {
     @Test
     void testCreate_ShouldPass() {
         Booking bookingToCreate = new Booking();
-        BeanUtils.copyProperties(BOOKING1, bookingToCreate, "id");
+        BeanUtils.copyProperties(getBooking1(), bookingToCreate, "id");
 
-        when(bookingRepository.save(bookingToCreate)).thenReturn(BOOKING1);
+        when(bookingRepository.save(bookingToCreate)).thenReturn(getBooking1());
 
         Booking booking = testObj.create(bookingToCreate);
 
-        assertThat(booking).isEqualTo(BOOKING1);
+        assertThat(booking).isEqualTo(getBooking1());
     }
 
     @Test
     void testCreate_ShouldFail_WhenIdNotNull() {
-        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.create(BOOKING1));
+        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.create(getBooking1()));
     }
 
     @Test
@@ -61,10 +61,10 @@ class BookingServiceImplUTest {
 
     @Test
     void testGetById_ShouldPass() {
-        when(bookingRepository.findById(BOOKING1.getId())).thenReturn(Optional.of(BOOKING1));
+        when(bookingRepository.findById(getBooking1().getId())).thenReturn(Optional.of(getBooking1()));
 
-        Booking actual = testObj.getById(BOOKING1.getId());
-        assertThat(actual).isEqualTo(BOOKING1);
+        Booking actual = testObj.getById(getBooking1().getId());
+        assertThat(actual).isEqualTo(getBooking1());
     }
 
     @Test
@@ -75,35 +75,33 @@ class BookingServiceImplUTest {
 
     @Test
     void testUpdate_ShouldSuccess() {
-        Booking entity = new Booking();
-        BeanUtils.copyProperties(BOOKING1, entity);
+        Long id = getBooking1().getId();
+        when(bookingRepository.findById(id)).thenReturn(Optional.of(getBooking1()));
 
-        when(bookingRepository.findById(entity.getId())).thenReturn(Optional.of(entity));
-
-        Booking updatedEntity = new Booking();
-        BeanUtils.copyProperties(BOOKING1, updatedEntity);
-        updatedEntity.setId(null);
         String personName = "PersonName";
+
+        Booking updatedEntity = getBooking1();
+        updatedEntity.setId(null);
         updatedEntity.setPersonName(personName);
 
-        Booking savedEntity = new Booking();
-        BeanUtils.copyProperties(BOOKING1, savedEntity);
+        Booking savedEntity = getBooking1();
         savedEntity.setPersonName(personName);
+
         when(bookingRepository.save(any())).thenReturn(savedEntity);
 
-        Booking actual = testObj.update(entity.getId(), updatedEntity);
+        Booking actual = testObj.update(id, updatedEntity);
         assertThat(actual).isEqualTo(savedEntity);
     }
 
     @Test
     void testUpdate_ShouldFail_WhenIdNotNull() {
-        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.update(BOOKING1.getId(), BOOKING1));
+        Assertions.assertThrows(InvalidEntityException.class, () -> testObj.update(getBooking1().getId(), getBooking1()));
     }
 
     @Test
     void testRemove_ShouldPass() {
-        when(bookingRepository.existsById(BOOKING1.getId())).thenReturn(true);
-        testObj.cancel(BOOKING1.getId());
+        when(bookingRepository.existsById(getBooking1().getId())).thenReturn(true);
+        testObj.cancel(getBooking1().getId());
     }
 
     @Test

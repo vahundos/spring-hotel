@@ -124,6 +124,13 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.4</version>
+                <configuration>
+                    <excludes>
+                        <exclude>com/vahundos/spring/hotel/entity/*</exclude>
+                        <exclude>com/vahundos/spring/hotel/SpringHotelApplication.*</exclude>
+                        <exclude>com/vahundos/spring/hotel/util/Views.*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -132,7 +139,7 @@
                     </execution>
                     <execution>
                         <id>report</id>
-                        <phase>prepare-package</phase>
+                        <phase>test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>

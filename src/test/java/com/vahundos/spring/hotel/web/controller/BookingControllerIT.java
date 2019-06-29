@@ -59,10 +59,10 @@ class BookingControllerIT {
 
         @Test
         void testGetById_WhenIdExists_ShouldReturnSuccessResponse() {
-            Booking actual = validatableResponseForGettingById(BOOKING1.getId(), OK.value())
+            Booking actual = validatableResponseForGettingById(getBooking1().getId(), OK.value())
                     .extract().body().as(Booking.class);
 
-            assertThat(actual).isEqualTo(BOOKING1);
+            assertThat(actual).isEqualTo(getBooking1());
         }
 
         @Test
@@ -136,7 +136,7 @@ class BookingControllerIT {
 
         @Test
         void testCancel_WhenIdExists_ShouldReturnSuccessResponse() {
-            validatableResponseForCanceling(BOOKING1.getId(), OK);
+            validatableResponseForCanceling(getBooking1().getId(), OK);
         }
 
         @Test
@@ -172,7 +172,7 @@ class BookingControllerIT {
 
         @Test
         void testCreate_WhenBodyValid_ShouldReturnSuccessResponse() throws JSONException {
-            String responseBody = getFixtureContent("booking-creation-response.json", BOOKING3.getId() + 1);
+            String responseBody = getFixtureContent("booking-creation-response.json", getBooking3().getId() + 1);
 
             validatableResponseForCreation(getObjAsJson(TestData.getValidBookingForCreation()), OK, responseBody);
         }
@@ -292,10 +292,10 @@ class BookingControllerIT {
             String expectedName = "Person";
             String requestBody = getFixtureContent(BOOKING_PARTIAL_UPDATE_REQUEST_FILE_NAME, expectedName);
 
-            Booking actual = validatableResponseForPartialUpdate(BOOKING1.getId(), requestBody, OK)
+            Booking actual = validatableResponseForPartialUpdate(getBooking1().getId(), requestBody, OK)
                     .extract().body().as(Booking.class);
 
-            assertThat(actual).isEqualToIgnoringGivenFields(BOOKING1, "personName");
+            assertThat(actual).isEqualToIgnoringGivenFields(getBooking1(), "personName");
             assertThat(actual.getPersonName()).isEqualTo(expectedName);
         }
 
@@ -309,7 +309,7 @@ class BookingControllerIT {
 
         @Test
         void testPartialUpdate_WhenBodyIsEmpty_ShouldReturnBadRequestResponse() {
-            validatableResponseForPartialUpdate(BOOKING1.getId(), "", BAD_REQUEST)
+            validatableResponseForPartialUpdate(getBooking1().getId(), "", BAD_REQUEST)
                     .body(is(equalTo("")));
         }
 
