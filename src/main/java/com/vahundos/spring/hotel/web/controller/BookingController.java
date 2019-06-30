@@ -18,6 +18,7 @@ import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/booking")
 @Slf4j
