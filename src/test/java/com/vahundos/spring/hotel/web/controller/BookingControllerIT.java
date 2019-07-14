@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
@@ -31,6 +31,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpStatus.*;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@TestPropertySource(locations = "classpath:test.properties")
 class BookingControllerIT {
 
     private static final String BOOKING_ID_PARAM = "idBooking";
@@ -129,9 +130,7 @@ class BookingControllerIT {
     }
 
     @Nested
-    @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-    @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    // https://github.com/spring-projects/spring-framework/issues/19930
+    @NestedSql
     class CancelTest {
 
         @Test
@@ -165,9 +164,7 @@ class BookingControllerIT {
     }
 
     @Nested
-    @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-    @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    // https://github.com/spring-projects/spring-framework/issues/19930
+    @NestedSql
     class CreateTest {
 
         @Test
@@ -282,9 +279,7 @@ class BookingControllerIT {
     }
 
     @Nested
-    @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-    @Sql(value = "classpath:data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-    // https://github.com/spring-projects/spring-framework/issues/19930
+    @NestedSql
     class UpdateTest {
 
         @Test
